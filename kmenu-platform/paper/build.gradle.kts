@@ -13,6 +13,9 @@ val serverDirectory = "./server"
 val startUpFlags = listOf("-Xmx2G", "-Xms1G")
 val startUpArgs = listOf("--nogui")
 
+val apiEntrypoint = "https://api.papermc.io/v2/"
+val paperVersionsEntrypoint = "$apiEntrypoint/projects/paper/versions"
+
 dependencies {
     // We exclude kotlin because use compileOnly(libs.kotlinStdlib) lower
     api(projects.kmenuCommon, { exclude("org.jetbrains.kotlin") })
@@ -44,21 +47,19 @@ tasks.register<JavaExec>("runServer") {
         if (!paperJar.exists()) {
             println("Downloading Paper version $serverVersion...")
 
-            val versionsUrl = uri("https://api.papermc.io/v2/projects/paper/versions/$serverVersion/builds").toURL()
-            val versionsConnection = versionsUrl.openConnection()
-            val versionsData = JsonSlurper().parse(versionsConnection.getInputStream()) as Map<*, *>
-            @Suppress("UNCHECKED_CAST")
-            val builds = versionsData["builds"] as List<Map<*, *>>
+            val latest = findLatestBuildInformation(serverVersion)
+            val buildNumber = latest.first
+            val fileName = latest.second
 
-            val latestBuild = builds.last()
-            val buildNumber = latestBuild["build"] as Int
-            val downloads = latestBuild["downloads"] as Map<*, *>
-            val application = downloads["application"] as Map<*, *>
-            val fileName = application["name"] as String
+            val downloadUrl =
+                "$paperVersionsEntrypoint/$serverVersion/builds/$buildNumber/downloads/$fileName"
 
-            val downloadUrl = uri("https://api.papermc.io/v2/projects/paper/versions/$serverVersion/builds/$buildNumber/downloads/$fileName").toURL()
             println("Download server from: $downloadUrl")
-            Files.copy(downloadUrl.openStream(), paperJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+
+            downloadFileFromUrl(
+                downloadUrl,
+                paperJar
+            )
             println("Server downloaded to: ${paperJar.absolutePath}")
         }
 
@@ -77,4 +78,20 @@ tasks.register<JavaExec>("runServer") {
     args = startUpArgs
 
     standardInput = System.`in`
+}
+
+private fun findLatestBuildInformation(version: String): Pair<Int, String> {
+    val versionsUrl = uri("$paperVersionsEntrypoint/$version/builds").toURL()
+    val versionsConnection = versionsUrl.openConnection()
+    val versionsData = JsonSlurper().parse(versionsConnection.getInputStream()) as Map<*, *>
+    @Suppress("UNCHECKED_CAST")
+    val builds = versionsData["builds"] as List<Map<*, *>>
+
+    val latestBuild = builds.last()
+    val buildNumber = latestBuild["build"] as Int
+    val downloads = latestBuild["downloads"] as Map<*, *>
+    val application = downloads["application"] as Map<*, *>
+    val fileName = application["name"] as String
+
+    return buildNumber to fileName
 }
