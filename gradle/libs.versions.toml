@@ -9,6 +9,7 @@ shadow = "9.0.0-rc2"
 paper = "1.21.8-R0.1-SNAPSHOT"
 nbt = "1.3"
 adventure = "4.24.0"
+blossom = "2.1.0"
 
 [libraries]
 
@@ -29,3 +30,4 @@ adventure-serializer-configurate = { group = "net.kyori", name = "adventure-seri
 plugin-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 plugin-detekt = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 plugin-shadow = { group = "com.gradleup.shadow", name = "com.gradleup.shadow.gradle.plugin", version.ref = "shadow" }
+plugin-blossom = { group = "net.kyori.blossom", name = "net.kyori.blossom.gradle.plugin", version.ref = "blossom" }

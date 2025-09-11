@@ -6,6 +6,19 @@ import java.nio.file.StandardCopyOption
 
 plugins {
     id("com.gradleup.shadow")
+    id("net.kyori.blossom")
+}
+
+sourceSets {
+    main {
+        blossom {
+            resources {
+                property("NAME", project.rootProject.name)
+                property("VERSION", project.rootProject.version.toString())
+                property("DESCRIPTION", project.rootProject.description)
+            }
+        }
+    }
 }
 
 val serverVersion = "1.21.8"

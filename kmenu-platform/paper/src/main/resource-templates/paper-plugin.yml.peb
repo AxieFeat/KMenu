@@ -1,0 +1,7 @@
+name: '{{ NAME }}'
+version: '{{ VERSION }}'
+main: kmenu.KMenuPaper
+description: '{{ DESCRIPTION }}'
+api-version: '1.21'
+bootstrapper: kmenu.KMenuBootstrap
+loader: kmenu.KMenuLoader
